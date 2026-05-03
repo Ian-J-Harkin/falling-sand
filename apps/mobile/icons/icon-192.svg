@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Falling Sand icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d2a38" />
+      <stop offset="100%" stop-color="#091018" />
+    </linearGradient>
+    <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd089" />
+      <stop offset="100%" stop-color="#f6a84f" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="44" fill="url(#bg)" />
+  <path d="M96 34c14 0 26 12 26 26v22h10c14 0 24 11 24 24 0 8-3 15-9 21l-28 29c-6 7-14 10-23 10s-17-3-23-10l-28-29c-6-6-9-13-9-21 0-13 10-24 24-24h10V60c0-14 12-26 26-26Z" fill="#0c1520" />
+  <path d="M96 42c10 0 18 8 18 18v30h18c9 0 16 6 16 14 0 5-2 10-6 14l-28 30c-5 5-11 8-18 8s-13-3-18-8l-28-30c-4-4-6-9-6-14 0-8 7-14 16-14h18V60c0-10 8-18 18-18Z" fill="url(#sand)" />
+  <circle cx="81" cy="106" r="6" fill="#fff2c9" />
+  <circle cx="111" cy="115" r="7" fill="#ffe2ab" />
+  <circle cx="96" cy="130" r="8" fill="#ffd57d" />
+</svg>
