@@ -1,0 +1,8 @@
+{
+  "appId": "com.ianjharkin.fallingsand",
+  "appName": "Falling Sand",
+  "webDir": "dist/mobile",
+  "server": {
+    "androidScheme": "https"
+  }
+}

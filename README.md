@@ -57,4 +57,37 @@ Recommended import flow for a free Vercel account:
 
 After deploy, Vercel will serve the PWA from the mobile app folder directly, which is the simplest fit for the current structure.
 
-If you later want to deploy the desktop/browser version instead, change the Vercel `Root Directory` to `apps/web`.# falling-sand
+If you later want to deploy the desktop/browser version instead, change the Vercel `Root Directory` to `apps/web`.
+
+## Capacitor
+
+Capacitor is scaffolded at the repo root so it can wrap the mobile app in `apps/mobile/`.
+
+The mobile web assets are staged into `dist/mobile/` before any Capacitor copy or sync step. Use these commands from the repo root:
+
+```powershell
+npm install
+npm run cap:sync
+```
+
+To add native projects:
+
+```powershell
+npx cap add android
+npx cap add ios
+```
+
+Then open the platform project:
+
+```powershell
+npm run cap:open:android
+npm run cap:open:ios
+```
+
+Notes:
+
+- Android can be built on Windows once Android Studio is installed.
+- iOS requires macOS and Xcode, even though the Capacitor config can live in this repo on Windows.
+- The current Capacitor target is the mobile app only, not `apps/web`.
+
+# falling-sand

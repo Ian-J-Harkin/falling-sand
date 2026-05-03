@@ -1,0 +1,18 @@
+{
+  "name": "falling-sand",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Falling Sand split web/mobile workspace with Capacitor support.",
+  "scripts": {
+    "sync:mobile": "node scripts/sync-mobile.mjs",
+    "cap:copy": "npm run sync:mobile && npx cap copy",
+    "cap:sync": "npm run sync:mobile && npx cap sync",
+    "cap:open:android": "npm run cap:sync && npx cap open android",
+    "cap:open:ios": "npm run cap:sync && npx cap open ios"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.6.2",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  }
+}
