@@ -87,7 +87,8 @@ function setupUI() {
   const status = document.getElementById("panel-status");
 
   if (toggle && panel) {
-    toggle.addEventListener("click", () => {
+    const handleToggle = (e) => {
+      e.stopPropagation();
       panel.classList.toggle("expanded");
       if (status) {
         status.textContent = panel.classList.contains("expanded")
@@ -99,6 +100,11 @@ function setupUI() {
       setTimeout(() => {
         windowResized();
       }, 400);
+    };
+
+    toggle.addEventListener("click", handleToggle);
+    toggle.addEventListener("touchstart", (e) => e.stopPropagation(), {
+      passive: true,
     });
   }
 }
@@ -264,6 +270,11 @@ function currentStreamWidth() {
 }
 
 function currentPointerCol() {
+  // Ensure we are clicking within the canvas bounds
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) {
+    return null;
+  }
+
   if (isTouchActive && activePointerX !== null) {
     return floor(activePointerX / w);
   }
