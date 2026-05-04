@@ -184,10 +184,10 @@ function resizeSimulation(preserveState = false) {
     return;
   }
 
-  let previousColScale = max(previousCols - 1, 1);
-  let previousRowScale = max(previousRows - 1, 1);
-  let nextColScale = max(cols - 1, 1);
-  let nextRowScale = max(rows - 1, 1);
+  // Anchor to the bottom-center
+  // This prevents the "stretched/destroyed" look when the UI panel changes size
+  let colOffset = floor((cols - previousCols) / 2);
+  let rowOffset = rows - previousRows;
 
   for (let i = 0; i < previousCols; i++) {
     for (let j = 0; j < previousRows; j++) {
@@ -195,17 +195,10 @@ function resizeSimulation(preserveState = false) {
         continue;
       }
 
-      let mappedCol = round((i / previousColScale) * nextColScale);
-      let mappedRow = round((j / previousRowScale) * nextRowScale);
+      let mappedCol = i + colOffset;
+      let mappedRow = j + rowOffset;
 
-      if (!withinCols(mappedCol) || !withinRows(mappedRow)) {
-        continue;
-      }
-
-      if (
-        grid[mappedCol][mappedRow] === 0 ||
-        previousVelocityGrid[i][j] > velocityGrid[mappedCol][mappedRow]
-      ) {
+      if (withinCols(mappedCol) && withinRows(mappedRow)) {
         grid[mappedCol][mappedRow] = previousGrid[i][j];
         velocityGrid[mappedCol][mappedRow] = previousVelocityGrid[i][j];
       }
