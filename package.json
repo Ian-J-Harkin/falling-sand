@@ -8,12 +8,15 @@
     "cap:copy": "npm run sync:mobile && npx cap copy",
     "cap:sync": "npm run sync:mobile && npx cap sync",
     "cap:open:android": "npm run cap:sync && npx cap open android",
-    "cap:open:ios": "npm run cap:sync && npx cap open ios"
+    "cap:open:ios": "npm run cap:sync && npx cap open ios",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@capacitor/android": "^7.6.2",
     "@capacitor/cli": "^7.4.3",
-    "@capacitor/core": "^7.4.3"
+    "@capacitor/core": "^7.4.3",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.5"
   },
   "dependencies": {
     "@capacitor/haptics": "^7.0.5",

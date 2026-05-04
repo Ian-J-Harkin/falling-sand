@@ -1,18 +1,9 @@
-// Falling Sand
-// The Coding Train / Daniel Shiffman
-// https://thecodingtrain.com/challenges/180-falling-sand
-// https://youtu.be/L4u7Zy_b868
-
-// Create a 2D array
-// Sorry if you are used to matrix math!
-// How would you do this with a
-// higher order function????
+// Desktop-oriented Falling Sand shell.
 
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
   for (let i = 0; i < arr.length; i++) {
     arr[i] = new Array(rows);
-    // Fill the array with 0s
     for (let j = 0; j < arr[i].length; j++) {
       arr[i][j] = 0;
     }
@@ -20,19 +11,16 @@ function make2DArray(cols, rows) {
   return arr;
 }
 
-// The grid
 let grid;
 let velocityGrid;
 
-// How big is each square?
 let w = 5;
 let cols, rows;
 let hueValue = 200;
 let brushSize = 5;
 let streamGrowthFrames = 6;
-let mouseHoldFrames = 0;
-let lastMouseCol = null;
-
+let pointerHoldFrames = 0;
+let lastPointerCol = null;
 let gravity = 0.1;
 
 function clearSimulation() {
@@ -73,11 +61,9 @@ function resetControls() {
   if (brushInput) {
     brushInput.value = 5;
   }
-
   if (growthInput) {
     growthInput.value = 6;
   }
-
   if (gravityInput) {
     gravityInput.value = 0.1;
   }
@@ -85,6 +71,31 @@ function resetControls() {
   updateBrushSize(5);
   updateStreamGrowthFrames(6);
   updateGravity(0.1);
+}
+
+function setupUI() {
+  const panel = document.getElementById("ui-panel");
+  const toggle = document.getElementById("panel-toggle");
+  const status = document.getElementById("panel-status");
+
+  if (toggle && panel) {
+    const handleToggle = (e) => {
+      e.stopPropagation();
+      panel.classList.toggle("expanded");
+      if (status) {
+        status.textContent = panel.classList.contains("expanded")
+          ? "Click to collapse"
+          : "Click to configure";
+      }
+
+      // Trigger p5 resize after transition
+      setTimeout(() => {
+        windowResized();
+      }, 400);
+    };
+
+    toggle.addEventListener("click", handleToggle);
+  }
 }
 
 function setupControls() {
@@ -99,25 +110,21 @@ function setupControls() {
       updateBrushSize(event.target.value);
     });
   }
-
   if (growthInput) {
     growthInput.addEventListener("input", (event) => {
       updateStreamGrowthFrames(event.target.value);
     });
   }
-
   if (gravityInput) {
     gravityInput.addEventListener("input", (event) => {
       updateGravity(event.target.value);
     });
   }
-
   if (clearButton) {
     clearButton.addEventListener("click", () => {
       clearSimulation();
     });
   }
-
   if (resetButton) {
     resetButton.addEventListener("click", () => {
       resetControls();
@@ -126,37 +133,115 @@ function setupControls() {
   }
 
   resetControls();
+  setupUI();
 }
 
-// Check if a row is within the bounds
 function withinCols(i) {
   return i >= 0 && i <= cols - 1;
 }
 
-// Check if a column is within the bounds
 function withinRows(j) {
   return j >= 0 && j <= rows - 1;
 }
 
+function getCanvasSize() {
+  let host = document.getElementById("canvas-host");
+  let hostWidth = host ? host.clientWidth : window.innerWidth - 48;
+  let hostHeight = host ? host.clientHeight : window.innerHeight * 0.7;
+  let canvasWidth = max(280, floor(hostWidth));
+  let canvasHeight = max(320, floor(hostHeight));
+  return { canvasWidth, canvasHeight };
+}
+
+function resizeSimulation(preserveState = false) {
+  let previousGrid = grid;
+  let previousVelocityGrid = velocityGrid;
+  let previousCols = cols;
+  let previousRows = rows;
+
+  cols = floor(width / w);
+  rows = floor(height / w);
+  clearSimulation();
+
+  if (!preserveState || !previousGrid || !previousVelocityGrid) {
+    return;
+  }
+
+  // Anchor to the bottom-center
+  let colOffset = floor((cols - previousCols) / 2);
+  let rowOffset = rows - previousRows;
+
+  for (let i = 0; i < previousCols; i++) {
+    for (let j = 0; j < previousRows; j++) {
+      if (previousGrid[i][j] === 0) {
+        continue;
+      }
+
+      let mappedCol = i + colOffset;
+      let mappedRow = j + rowOffset;
+
+      if (withinCols(mappedCol) && withinRows(mappedRow)) {
+        grid[mappedCol][mappedRow] = previousGrid[i][j];
+        velocityGrid[mappedCol][mappedRow] = previousVelocityGrid[i][j];
+      }
+    }
+  }
+}
+
 function setup() {
-  let canvas = createCanvas(600, 500);
+  let size = getCanvasSize();
+  let canvas = createCanvas(size.canvasWidth, size.canvasHeight);
   let canvasHost = document.getElementById("canvas-host");
   if (canvasHost) {
     canvas.parent("canvas-host");
   }
   colorMode(HSB, 360, 255, 255);
-  cols = width / w;
-  rows = height / w;
-  clearSimulation();
+  resizeSimulation();
   setupControls();
 }
 
-function mouseDragged() {}
+function windowResized() {
+  let size = getCanvasSize();
+  resizeCanvas(size.canvasWidth, size.canvasHeight);
+  resizeSimulation(true);
+}
+
+function currentPointerCol() {
+  // Ensure we are clicking within the canvas bounds
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) {
+    return null;
+  }
+
+  if (mouseIsPressed) {
+    return floor(mouseX / w);
+  }
+
+  return null;
+}
+
+function emitSandAt(col) {
+  let matrix = currentStreamWidth();
+  let extent = floor(matrix / 2);
+  let sourceRow = extent;
+
+  for (let i = -extent; i <= extent; i++) {
+    for (let j = -extent; j <= extent; j++) {
+      if (random(1) < 0.75) {
+        let drawCol = col + i;
+        let drawRow = sourceRow + j;
+        if (withinCols(drawCol) && withinRows(drawRow)) {
+          grid[drawCol][drawRow] = hueValue;
+          velocityGrid[drawCol][drawRow] = 1;
+        }
+      }
+    }
+  }
+}
 
 function currentStreamWidth() {
   let minimumWidth = min(3, brushSize);
   let maxWidth = max(minimumWidth, brushSize);
-  let widthSteps = floor(mouseHoldFrames / streamGrowthFrames);
+  let widthSteps = floor(pointerHoldFrames / streamGrowthFrames);
   let desiredWidth = minimumWidth + widthSteps * 2;
 
   if (desiredWidth % 2 === 0) {
@@ -169,66 +254,41 @@ function currentStreamWidth() {
 function draw() {
   background(0);
 
-  if (mouseIsPressed) {
-    let mouseCol = floor(mouseX / w);
-
-    if (mouseCol === lastMouseCol) {
-      mouseHoldFrames += 1;
+  let pointerCol = currentPointerCol();
+  if (pointerCol !== null) {
+    if (pointerCol === lastPointerCol) {
+      pointerHoldFrames += 1;
     } else {
-      mouseHoldFrames = 0;
-      lastMouseCol = mouseCol;
+      pointerHoldFrames = 0;
+      lastPointerCol = pointerCol;
     }
 
-    // Emit from the top and widen only when the mouse stays on the same column.
-    let matrix = currentStreamWidth();
-    let extent = floor(matrix / 2);
-    let sourceRow = extent;
+    emitSandAt(pointerCol);
 
-    for (let i = -extent; i <= extent; i++) {
-      for (let j = -extent; j <= extent; j++) {
-        if (random(1) < 0.75) {
-          let col = mouseCol + i;
-          let row = sourceRow + j;
-          if (withinCols(col) && withinRows(row)) {
-            grid[col][row] = hueValue;
-            velocityGrid[col][row] = 1;
-          }
-        }
-      }
-    }
-    // Change the color of the sand over time
     hueValue += 0.5;
     if (hueValue > 360) {
       hueValue = 1;
     }
   } else {
-    mouseHoldFrames = 0;
-    lastMouseCol = null;
+    pointerHoldFrames = 0;
+    lastPointerCol = null;
   }
 
-  //frameRate(1);
-
-  // Draw the sand
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       noStroke();
       if (grid[i][j] > 0) {
         fill(grid[i][j], 255, 255);
-        let x = i * w;
-        let y = j * w;
-        square(x, y, w);
+        square(i * w, j * w, w);
       }
     }
   }
 
-  // Create a 2D array for the next frame of animation
   let nextGrid = make2DArray(cols, rows);
   let nextVelocityGrid = make2DArray(cols, rows);
 
-  // Check every cell
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
-      // What is the state?
       let state = grid[i][j];
       let velocity = velocityGrid[i][j];
       let moved = false;
@@ -270,6 +330,7 @@ function draw() {
       }
     }
   }
+
   grid = nextGrid;
   velocityGrid = nextVelocityGrid;
 }

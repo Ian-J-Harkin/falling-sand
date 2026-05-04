@@ -2,178 +2,287 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Falling Sand</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Falling Sand Desktop</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
     <script src="fallingsand.js"></script>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #090d12;
-        --panel: rgba(13, 18, 27, 0.88);
+        --bg: #091018;
+        --panel: rgba(13, 20, 30, 0.85);
         --panel-border: rgba(255, 255, 255, 0.08);
-        --text: #f3f5f7;
-        --muted: #a7b0bd;
-        --accent: #ffb347;
+        --text: #f7f7f3;
+        --muted: #b6bec7;
+        --accent: #f6a84f;
+        --easing: cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       * {
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
       }
 
+      html,
       body {
         margin: 0;
-        min-height: 100vh;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background:
-          radial-gradient(circle at top, rgba(255, 179, 71, 0.18), transparent 30%),
-          linear-gradient(180deg, #101720 0%, var(--bg) 55%);
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+        background: var(--bg);
         color: var(--text);
+        font-family: "Outfit", "Segoe UI", system-ui, sans-serif;
+        touch-action: none;
       }
 
       .app-shell {
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: 
+          radial-gradient(circle at top right, rgba(246, 168, 79, 0.12), transparent 40%),
+          radial-gradient(circle at bottom left, rgba(58, 123, 213, 0.08), transparent 40%);
       }
 
+      /* Collapsible Panel */
       .panel {
-        padding: 24px;
         background: var(--panel);
-        -webkit-backdrop-filter: blur(18px);
-        backdrop-filter: blur(18px);
-        border-right: 1px solid var(--panel-border);
+        -webkit-backdrop-filter: blur(24px);
+        backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--panel-border);
+        z-index: 10;
+        transition: all 0.4s var(--easing);
+        flex-shrink: 0;
       }
 
-      .panel h1 {
-        margin: 0 0 10px;
-        font-size: 2rem;
-        line-height: 1;
+      .panel-header {
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
       }
 
-      .panel p {
-        margin: 0 0 24px;
+      .header-main h1 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        background: linear-gradient(to bottom, #fff, #b6bec7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-subs {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .header-main p {
+        margin: 2px 0 0;
+        font-size: 0.8rem;
         color: var(--muted);
-        line-height: 1.5;
+        font-weight: 500;
+      }
+
+      .swipe-hint {
+        color: var(--accent) !important;
+        font-size: 0.75rem !important;
+        opacity: 0.8;
+      }
+
+      .chevron {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        transition: transform 0.4s var(--easing);
+      }
+
+      .chevron::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--muted);
+        border-bottom: 2px solid var(--muted);
+        transform: rotate(45deg);
+        margin-top: -4px;
+      }
+
+      .panel.expanded .chevron {
+        transform: rotate(180deg);
+      }
+
+      /* Controls Wrapper */
+      .controls-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.4s var(--easing);
+        overflow: hidden;
+      }
+
+      .panel.expanded .controls-wrapper {
+        grid-template-rows: 1fr;
+      }
+
+      .controls-content {
+        min-height: 0;
+        padding: 0 20px 24px;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding-top: 10px;
       }
 
       .control-group {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        margin-bottom: 20px;
       }
 
       .control-row {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        font-size: 0.95rem;
+        align-items: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--muted);
       }
 
       .value {
         color: var(--accent);
-        font-variant-numeric: tabular-nums;
+        font-family: monospace;
+        font-size: 1rem;
       }
 
       input[type="range"] {
         width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        outline: none;
+        appearance: none;
         accent-color: var(--accent);
       }
 
       .button-row {
         display: flex;
         gap: 12px;
-        flex-wrap: wrap;
+        margin-top: 10px;
       }
 
       button {
-        border: 0;
-        border-radius: 999px;
-        padding: 10px 16px;
-        background: #1e2937;
+        flex: 1;
+        max-width: 200px;
+        height: 52px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.05);
         color: var(--text);
+        font-weight: 700;
+        font-size: 0.95rem;
         cursor: pointer;
-        transition: transform 120ms ease, background 120ms ease;
+        transition: all 0.2s;
       }
 
       button:hover {
-        transform: translateY(-1px);
-        background: #2d3a4d;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      button:active {
+        transform: scale(0.96);
       }
 
       button.primary {
         background: var(--accent);
-        color: #1d1306;
+        color: #231609;
+        border: none;
       }
 
+      /* Canvas Stage */
       .canvas-stage {
-        display: grid;
-        place-items: center;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         padding: 24px;
+        overflow: hidden;
       }
 
       #canvas-host {
-        border-radius: 20px;
+        flex: 1;
+        background: #000;
+        border-radius: 28px;
         overflow: hidden;
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        position: relative;
       }
 
       canvas {
         display: block;
-      }
-
-      @media (max-width: 900px) {
-        .app-shell {
-          grid-template-columns: 1fr;
-        }
-
-        .panel {
-          border-right: 0;
-          border-bottom: 1px solid var(--panel-border);
-        }
-
-        .canvas-stage {
-          padding-top: 0;
-        }
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain;
+        touch-action: none;
       }
     </style>
   </head>
   <body>
     <main class="app-shell">
-      <aside class="panel">
-        <h1>Falling Sand</h1>
-        <p>Paint sand with the mouse, tune how wide the brush is, and change how quickly the particles accelerate.</p>
-
-        <section class="control-group" aria-labelledby="brush-size-label">
-          <div class="control-row">
-            <label for="brush-size" id="brush-size-label">Max Stream Width</label>
-            <span class="value" id="brush-size-value">5</span>
+      <section class="panel" id="ui-panel">
+        <header class="panel-header" id="panel-toggle">
+          <div class="header-main">
+            <h1>Falling Sand</h1>
+            <div class="header-subs">
+              <p id="panel-status">Click to configure</p>
+              <p class="swipe-hint">Move mouse/swipe to move stream</p>
+            </div>
           </div>
-          <input id="brush-size" type="range" min="1" max="11" step="2" value="5" />
-        </section>
+          <div class="chevron"></div>
+        </header>
+        
+        <div class="controls-wrapper">
+          <div class="controls-content">
+            <div class="controls">
+              <section class="control-group" aria-labelledby="brush-size-label">
+                <div class="control-row">
+                  <label for="brush-size" id="brush-size-label">Max Width</label>
+                  <span class="value" id="brush-size-value">5</span>
+                </div>
+                <input id="brush-size" type="range" min="1" max="11" step="2" value="5" />
+              </section>
 
-        <section class="control-group" aria-labelledby="stream-growth-label">
-          <div class="control-row">
-            <label for="stream-growth" id="stream-growth-label">Widen Every</label>
-            <span class="value" id="stream-growth-value">6f</span>
+              <section class="control-group" aria-labelledby="stream-growth-label">
+                <div class="control-row">
+                  <label for="stream-growth" id="stream-growth-label">Widen Every</label>
+                  <span class="value" id="stream-growth-value">6f</span>
+                </div>
+                <input id="stream-growth" type="range" min="1" max="20" step="1" value="6" />
+              </section>
+
+              <section class="control-group" aria-labelledby="gravity-label">
+                <div class="control-row">
+                  <label for="gravity" id="gravity-label">Gravity</label>
+                  <span class="value" id="gravity-value">0.10</span>
+                </div>
+                <input id="gravity" type="range" min="0.02" max="1" step="0.02" value="0.10" />
+              </section>
+
+              <div class="button-row">
+                <button class="primary" id="clear-sand" type="button">Clear Canvas</button>
+                <button id="reset-settings" type="button">Reset UI</button>
+              </div>
+            </div>
           </div>
-          <input id="stream-growth" type="range" min="1" max="20" step="1" value="6" />
-        </section>
-
-        <section class="control-group" aria-labelledby="gravity-label">
-          <div class="control-row">
-            <label for="gravity" id="gravity-label">Gravity</label>
-            <span class="value" id="gravity-value">0.10</span>
-          </div>
-          <input id="gravity" type="range" min="0.02" max="1" step="0.02" value="0.10" />
-        </section>
-
-        <div class="button-row">
-          <button class="primary" id="clear-sand" type="button">Clear Sand</button>
-          <button id="reset-settings" type="button">Reset Settings</button>
         </div>
-      </aside>
+      </section>
 
       <section class="canvas-stage">
         <div id="canvas-host"></div>
