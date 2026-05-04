@@ -1,4 +1,10 @@
 // Mobile-oriented Falling Sand shell.
+const { Haptics, StatusBar } = Capacitor.Plugins;
+
+// Set initial Status Bar style
+if (StatusBar) {
+  StatusBar.setOverlaysWebView({ overlay: true });
+}
 
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
@@ -75,6 +81,28 @@ function resetControls() {
   updateGravity(0.1);
 }
 
+function setupUI() {
+  const panel = document.getElementById("ui-panel");
+  const toggle = document.getElementById("panel-toggle");
+  const status = document.getElementById("panel-status");
+
+  if (toggle && panel) {
+    toggle.addEventListener("click", () => {
+      panel.classList.toggle("expanded");
+      if (status) {
+        status.textContent = panel.classList.contains("expanded")
+          ? "Tap to collapse"
+          : "Tap to configure";
+      }
+
+      // Trigger p5 resize after transition
+      setTimeout(() => {
+        windowResized();
+      }, 400);
+    });
+  }
+}
+
 function setupControls() {
   let brushInput = document.getElementById("brush-size");
   let growthInput = document.getElementById("stream-growth");
@@ -100,16 +128,23 @@ function setupControls() {
   if (clearButton) {
     clearButton.addEventListener("click", () => {
       clearSimulation();
+      if (Haptics) {
+        Haptics.impact({ style: "MEDIUM" });
+      }
     });
   }
   if (resetButton) {
     resetButton.addEventListener("click", () => {
       resetControls();
       clearSimulation();
+      if (Haptics) {
+        Haptics.notification({ type: "SUCCESS" });
+      }
     });
   }
 
   resetControls();
+  setupUI();
 }
 
 function withinCols(i) {

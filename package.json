@@ -14,5 +14,9 @@
     "@capacitor/android": "^7.6.2",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3"
+  },
+  "dependencies": {
+    "@capacitor/haptics": "^7.0.5",
+    "@capacitor/status-bar": "^7.0.6"
   }
 }
