@@ -126,14 +126,17 @@
 
       /* Controls Wrapper */
       .controls-wrapper {
-        display: grid;
-        grid-template-rows: 0fr;
-        transition: grid-template-rows 0.4s var(--easing);
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s var(--easing);
         overflow: hidden;
       }
 
       .panel.expanded .controls-wrapper {
-        grid-template-rows: 1fr;
+        max-height: 500px;
+        opacity: 1;
+        visibility: visible;
       }
 
       .controls-content {
