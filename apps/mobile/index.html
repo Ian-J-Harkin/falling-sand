@@ -87,6 +87,18 @@
         font-weight: 500;
       }
 
+      .header-subs {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .swipe-hint {
+        color: var(--accent) !important;
+        font-size: 0.75rem !important;
+        opacity: 0.8;
+      }
+
       .chevron {
         width: 32px;
         height: 32px;
@@ -242,7 +254,10 @@
         <header class="panel-header" id="panel-toggle">
           <div class="header-main">
             <h1>Falling Sand</h1>
-            <p id="panel-status">Tap to configure</p>
+            <div class="header-subs">
+              <p id="panel-status">Tap to configure</p>
+              <p class="swipe-hint">Swipe left/right to move stream</p>
+            </div>
           </div>
           <div class="chevron"></div>
         </header>

@@ -1,8 +1,8 @@
 // Mobile-oriented Falling Sand shell.
-const { Haptics, StatusBar } = Capacitor.Plugins;
+const { Haptics, StatusBar } = (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins : {};
 
 // Set initial Status Bar style
-if (StatusBar) {
+if (StatusBar && StatusBar.setOverlaysWebView) {
   StatusBar.setOverlaysWebView({ overlay: true });
 }
 
