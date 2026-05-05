@@ -225,13 +225,17 @@ function windowResized() {
 }
 
 function touchStarted() {
-  updateActiveTouch();
-  return false;
+  if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+    updateActiveTouch();
+    return false;
+  }
 }
 
 function touchMoved() {
-  updateActiveTouch();
-  return false;
+  if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+    updateActiveTouch();
+    return false;
+  }
 }
 
 function touchEnded() {
@@ -239,7 +243,9 @@ function touchEnded() {
   isTouchActive = false;
   pointerHoldFrames = 0;
   lastPointerCol = null;
-  return false;
+  if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+    return false;
+  }
 }
 
 function updateActiveTouch() {
