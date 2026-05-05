@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Falling Sand Desktop</title>
+    <script>
+      // Automatically redirect mobile users to the mobile-optimized version
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        window.location.href = "/apps/mobile/";
+      }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
     <script src="fallingsand.js"></script>
     <style>
